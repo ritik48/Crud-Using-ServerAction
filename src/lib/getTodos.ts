@@ -3,6 +3,7 @@ import { connectDB } from "./utils";
 import { unstable_cache } from "next/cache";
 
 export async function fetchTodos() {
+  // await new Promise((r) => setTimeout(r, 3000));
   await connectDB();
   const todos = await Todo.find();
 

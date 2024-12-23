@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { addTodos } from "@/app/actions";
+import { addTodos, editTodos } from "@/app/actions";
 import { useActionState } from "react";
 
 const formSchema = z.object({
@@ -28,7 +28,10 @@ const formSchema = z.object({
 export type FormType = z.infer<typeof formSchema>;
 export type FormConfig = {
   edit: boolean;
-  data?: FormType;
+  data?: {
+    title: string;
+    _id: string;
+  };
 };
 
 export function AddItemForm({ config }: { config: FormConfig }) {
@@ -40,14 +43,17 @@ export function AddItemForm({ config }: { config: FormConfig }) {
     defaultValues: initialState,
   });
 
-  const [error, action, isPending] = useActionState(addTodos, null);
-
-  console.log("=========== ERROR ========== ", error);
-  console.log("============ IS PENDING ============", isPending);
+  const [error, action, isPending] = useActionState(
+    config.edit
+      ? (state: any, formData: FormData) =>
+          editTodos(state, formData, config.data?._id as string)
+      : addTodos,
+    null
+  );
 
   return (
     <Form {...form}>
-      <form action={action} className="space-y-8">
+      <form action={action}>
         <FormField
           control={form.control}
           name="title"
