@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { addTodos, editTodos } from "@/app/actions";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -32,6 +32,7 @@ export type FormConfig = {
     title: string;
     _id: string;
   };
+  onSuccess?: () => void;
 };
 
 export function AddItemForm({ config }: { config: FormConfig }) {
@@ -50,6 +51,13 @@ export function AddItemForm({ config }: { config: FormConfig }) {
       : addTodos,
     null
   );
+
+  useEffect(() => {
+    if (!error) return;
+    if (error.success) {
+      config.onSuccess?.();
+    }
+  }, [error?.success]);
 
   return (
     <Form {...form}>

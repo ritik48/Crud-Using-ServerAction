@@ -21,7 +21,9 @@ export function AddItem({ config }: { config: FormConfig }) {
       <DialogContent>
         <DialogHeader>
           <DialogDescription>
-            <AddItemForm config={config} />
+            <AddItemForm
+              config={{ ...config, onSuccess: () => setOpen(false) }}
+            />
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

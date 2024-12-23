@@ -12,6 +12,7 @@ export async function addTodos(_prevState: any, data: FormData) {
   await todo.save();
 
   revalidateTag("todos");
+  return { success: true };
 }
 
 export async function editTodos(_prevState: any, data: FormData, _id: string) {
@@ -20,6 +21,7 @@ export async function editTodos(_prevState: any, data: FormData, _id: string) {
   await Todo.findByIdAndUpdate(_id, { title: data.get("title") });
 
   revalidateTag("todos");
+  return { success: true };
 }
 
 export async function deleteTodo(_prevState: any, data: FormData) {
