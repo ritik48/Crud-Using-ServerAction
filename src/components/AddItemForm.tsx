@@ -17,15 +17,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { addTodos, editTodos } from "@/app/actions";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { formSchema, FormType } from "@/lib/types";
 
-const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-});
-
-export type FormType = z.infer<typeof formSchema>;
 export type FormConfig = {
   edit: boolean;
   data?: {
@@ -44,24 +38,25 @@ export function AddItemForm({ config }: { config: FormConfig }) {
     defaultValues: initialState,
   });
 
-  const [error, action, isPending] = useActionState(
-    config.edit
-      ? (state: any, formData: FormData) =>
-          editTodos(state, formData, config.data?._id as string)
-      : addTodos,
-    null
-  );
+  const isPending = form.formState.isSubmitting;
 
-  useEffect(() => {
-    if (!error) return;
-    if (error.success) {
-      config.onSuccess?.();
+  async function onSubmit(value: FormType) {
+    let res;
+    if (config.edit) res = await editTodos(value, config.data?._id as string);
+    else res = await addTodos(value);
+
+    if ("success" in res) {
+      return config.onSuccess?.();
     }
-  }, [error?.success]);
+
+    if (res.title) {
+      form.setError("title", { message: res.title });
+    }
+  }
 
   return (
     <Form {...form}>
-      <form action={action}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="title"
