@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import mongoose from "mongoose";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,3 +19,15 @@ export async function connectDB() {
 
   connection.isConnected = connect.connections[0].readyState;
 }
+
+type FormError<T> = {
+  [key in keyof T]: string;
+};
+
+export const formatErrors = <T>(errors: z.ZodIssue[]) => {
+  return errors.reduce((acc, err) => {
+    const field = err.path[0] as keyof FormError<T>;
+    acc[field] = err.message;
+    return acc;
+  }, {} as FormError<T>);
+};
